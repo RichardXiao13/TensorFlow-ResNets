@@ -1,4 +1,4 @@
-# TensorFlow-ResNet
+# TensorFlow-ResNets
 
 This repository contains TensorFlow Keras ResNet models.
 Below, you will find the supported variants of ResNet and what weights are supported.   
@@ -13,7 +13,7 @@ This allows the use of TPUs since they don't work with TF Nightly.
 
 These models **will not work without a GPU or TPU** due to the use of grouped convolutions.  
 
-##Models
+## Models
 
 ---
 
@@ -28,7 +28,7 @@ These models **will not work without a GPU or TPU** due to the use of grouped co
 | ResNeXt-50 32x4d  | semi-weakly supervised | 82.2       | 96.3       |
 | ResNeXt-101 32x8d | semi-weakly supervised | 84.3       | 97.2       |
 
-##Preprocessing
+## Preprocessing
 
 ---
 

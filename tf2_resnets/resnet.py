@@ -8,7 +8,7 @@ import os
 import tensorflow as tf
 from tensorflow.python.keras import backend
 from tensorflow.python.keras import layers
-from models import convolutions
+from tf2_resnets import convolutions
 layers.Conv2D = convolutions.Conv2D
 from tensorflow.python.keras.applications import imagenet_utils
 from tensorflow.python.keras.engine import training
