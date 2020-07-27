@@ -1,5 +1,7 @@
 # TensorFlow-ResNets
 
+[![PyPI version](https://badge.fury.io/py/tf2-resnets.svg)](https://badge.fury.io/py/tf2-resnets)  
+
 This repository contains TensorFlow Keras ResNet models.
 Below, you will find the supported variants of ResNet and what weights are supported.   
 
@@ -12,6 +14,22 @@ Grouped convolutions will be imported from `convolutions.py` which is the TF Nig
 This allows the use of TPUs since they don't work with TF Nightly.  
 
 These models **will not work without a GPU or TPU** due to the use of grouped convolutions.  
+
+## Installation
+
+---
+
+To install, you can use `pip install tf2-resnets`.  
+To use a model, you can do
+```python
+from tf2_resnets import resnet
+
+# Weights here are ImageNet.
+# They can also be 'ssl' (semi-supervised)
+# or 'swsl' (semi-weakly supervised)
+# for a selection of models.
+model = resnet.ResNeXt50(input_shape=(224, 224, 3), weights='imagenet')
+```
 
 ## Models
 
