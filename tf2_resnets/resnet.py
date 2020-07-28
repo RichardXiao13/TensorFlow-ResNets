@@ -17,7 +17,7 @@ from tensorflow.python.keras.utils import layer_utils
 
 
 BASE_WEIGHTS_PATH = (
-    'https://github.com/RichardXiao13/Tensorflow-ResNet/releases/download/v0.1.0/'
+    'https://github.com/RichardXiao13/Tensorflow-ResNet/releases/download/'
 )
 IMAGENET_WEIGHTS_HASHES = {
     'resnext50': ('ae0d1246ce78fc84e96b68815980d252',
@@ -27,7 +27,15 @@ IMAGENET_WEIGHTS_HASHES = {
     'wide_resnet50': ('a73fd180ce246e8771cbab225ff03f07',
                       '339ac967cce04f0eb0756f60b80fd79b'),
     'wide_resnet101': ('f0d3a55b905bbcf69a94001b7e7f65cd',
-                       '5640917173c841166272114b0259f8e7')
+                       '5640917173c841166272114b0259f8e7'),
+    'resnest50': ('ecb1254d3d33cd767497bf061b63b064',
+                  'fa4b3f14e6d287225ddcd70803ee2faa'),
+    'resnest101': ('d87c42c5f3edca88a3f83057cffd96ca',
+                   'f070dc0d1863a2b31f4094dd88713d3d'),
+    'resnest200': ('515b4f4c86ef0923b65e84cc2e519845',
+                   '83b49aa2528cecfbe2eb713077d05033'),
+    'resnest269': ('efeade22e9992057d69c6727fe56eb77',
+                   'c29b0d7e5cc68ebe37cbdfba17f3359b')
 }
 SSL_WEIGHTS_HASHES = {
     'resnext50': ('b216ae004757827896210dcc5b823298',
@@ -44,7 +52,6 @@ SWSL_WEIGHTS_HASHES = {
 
 
 def ResNet(stack_fn,
-           preact,
            use_bias,
            model_name='resnet',
            include_top=True,
@@ -52,10 +59,12 @@ def ResNet(stack_fn,
            input_tensor=None,
            input_shape=None,
            pooling=None,
+           deep_stem=False,
+           stem_width=None,
            classes=1000,
            classifier_activation='softmax',
            **kwargs):
-  """Instantiates the ResNet, ResNetV2, ResNeXt, and Wide ResNet architecture.
+  """Instantiates the ResNeSt, ResNeXt, and Wide ResNet architecture.
 
   Optionally loads weights pre-trained on ImageNet.
   Note that the data format convention used by the model is
@@ -67,8 +76,6 @@ def ResNet(stack_fn,
   Arguments:
     stack_fn: a function that returns output tensor for the
       stacked residual blocks.
-    preact: whether to use pre-activation or not
-      (True for ResNetV2, False for ResNet and ResNeXt).
     use_bias: whether to use biases for convolutional layers or not
       (True for ResNet and ResNetV2, False for ResNeXt).
     model_name: string, model name.
@@ -151,11 +158,33 @@ def ResNet(stack_fn,
 
   bn_axis = 3 if backend.image_data_format() == 'channels_last' else 1
 
-  x = layers.ZeroPadding2D(
-      padding=((3, 3), (3, 3)), name='conv1_pad')(img_input)
-  x = layers.Conv2D(64, 7, strides=2, use_bias=use_bias, name='conv1_conv')(x)
+  if deep_stem:
+    # Deep stem based off of ResNet-D
+    x = layers.ZeroPadding2D(
+      padding=((1, 1), (1, 1)), name='conv1_0_pad')(img_input)
+    x = layers.Conv2D(stem_width, 3, strides=2, use_bias=use_bias, name='conv1_0_conv')(x)
+    x = layers.BatchNormalization(
+      axis=bn_axis, epsilon=1.001e-5, name='conv1_0_bn')(x)
+    x = layers.Activation('relu', name='conv1_0_relu')(x)
 
-  if not preact:
+    x = layers.ZeroPadding2D(
+      padding=((1, 1), (1, 1)), name='conv1_1_pad')(x)
+    x = layers.Conv2D(stem_width, 3, strides=1, use_bias=use_bias, name='conv1_1_conv')(x)
+    x = layers.BatchNormalization(
+      axis=bn_axis, epsilon=1.001e-5, name='conv1_1_bn')(x)
+    x = layers.Activation('relu', name='conv1_1_relu')(x)
+
+    x = layers.ZeroPadding2D(
+      padding=((1, 1), (1, 1)), name='conv1_2_pad')(x)
+    x = layers.Conv2D(stem_width * 2, 3, strides=1, use_bias=use_bias, name='conv1_2_conv')(x)
+    x = layers.BatchNormalization(
+      axis=bn_axis, epsilon=1.001e-5, name='conv1_2_bn')(x)
+    x = layers.Activation('relu', name='conv1_2_relu')(x)
+  else:
+    x = layers.ZeroPadding2D(
+        padding=((3, 3), (3, 3)), name='conv1_pad')(img_input)
+    x = layers.Conv2D(64, 7, strides=2, use_bias=use_bias, name='conv1_conv')(x)
+
     x = layers.BatchNormalization(
         axis=bn_axis, epsilon=1.001e-5, name='conv1_bn')(x)
     x = layers.Activation('relu', name='conv1_relu')(x)
@@ -164,11 +193,6 @@ def ResNet(stack_fn,
   x = layers.MaxPooling2D(3, strides=2, name='pool1_pool')(x)
 
   x = stack_fn(x)
-
-  if preact:
-    x = layers.BatchNormalization(
-        axis=bn_axis, epsilon=1.001e-5, name='post_bn')(x)
-    x = layers.Activation('relu', name='post_relu')(x)
 
   if include_top:
     x = layers.GlobalAveragePooling2D(name='avg_pool')(x)
@@ -192,12 +216,18 @@ def ResNet(stack_fn,
   model = training.Model(inputs, x, name=model_name)
 
   # Load weights.
+  global BASE_WEIGHTS_PATH
+  if 'resnest' in model_name:
+    BASE_WEIGHTS_PATH += 'v0.2.0/'
+  else:
+    BASE_WEIGHTS_PATH += 'v0.1.0/'
+
   if (weights == 'imagenet') and (model_name in IMAGENET_WEIGHTS_HASHES):
     if include_top:
       file_name = model_name + '_imagenet_top.h5'
       file_hash = IMAGENET_WEIGHTS_HASHES[model_name][0]
     else:
-      file_name = model_name + '_imagnet_notop.h5'
+      file_name = model_name + '_imagenet_notop.h5'
       file_hash = IMAGENET_WEIGHTS_HASHES[model_name][1]
     weights_path = data_utils.get_file(
         file_name,
@@ -239,172 +269,10 @@ def ResNet(stack_fn,
   return model
 
 
-def block3(x,
-           filters,
-           kernel_size=3,
-           stride=1,
-           groups=32,
-           base_width=64,
-           conv_shortcut=True,
-           name=None):
-  """A residual block.
-
-  Arguments:
-    x: input tensor.
-    filters: integer, filters of the bottleneck layer.
-    kernel_size: default 3, kernel size of the bottleneck layer.
-    stride: default 1, stride of the first layer.
-    groups: default 32, group size for grouped convolution.
-    conv_shortcut: default True, use convolution shortcut if True,
-        otherwise identity shortcut.
-    name: string, block label.
-
-  Returns:
-    Output tensor for the residual block.
-  """
-  bn_axis = 3 if backend.image_data_format() == 'channels_last' else 1
-
-  width = int(filters * (base_width / 64.)) * groups
-  expansion = 4
-
-  if conv_shortcut:
-    shortcut = layers.Conv2D(
-        filters * expansion,
-        1,
-        strides=stride,
-        use_bias=False,
-        name=name + '_0_conv')(x)
-    shortcut = layers.BatchNormalization(
-        axis=bn_axis, epsilon=1.001e-5, name=name + '_0_bn')(shortcut)
-  else:
-    shortcut = x
-
-  x = layers.Conv2D(width, 1, use_bias=False, name=name + '_1_conv')(x)
-  x = layers.BatchNormalization(
-      axis=bn_axis, epsilon=1.001e-5, name=name + '_1_bn')(x)
-  x = layers.Activation('relu', name=name + '_1_relu')(x)
-
-  x = layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name=name + '_2_pad')(x)
-  x = layers.Conv2D(
-      width,
-      kernel_size=kernel_size,
-      strides=stride,
-      use_bias=False,
-      groups=groups,
-      name=name + '_3_conv')(x)
-  x = layers.BatchNormalization(
-      axis=bn_axis, epsilon=1.001e-5, name=name + '_2_bn')(x)
-  x = layers.Activation('relu', name=name + '_2_relu')(x)
-
-  x = layers.Conv2D(
-      filters * expansion, 1, use_bias=False, name=name + '_4_conv')(x)
-  x = layers.BatchNormalization(
-      axis=bn_axis, epsilon=1.001e-5, name=name + '_3_bn')(x)
-
-  x = layers.Add(name=name + '_add')([shortcut, x])
-  x = layers.Activation('relu', name=name + '_out')(x)
-  return x
-
-
-def stack3(x, filters, blocks, stride1=2, groups=1, base_width=64, name=None):
-  """A set of stacked residual blocks.
-
-  Arguments:
-    x: input tensor.
-    filters: integer, filters of the bottleneck layer in a block.
-    blocks: integer, blocks in the stacked blocks.
-    stride1: default 2, stride of the first layer in the first block.
-    groups: default 32, group size for grouped convolution.
-    name: string, stack label.
-
-  Returns:
-    Output tensor for the stacked blocks.
-  """
-  x = block3(x, filters, stride=stride1, groups=groups, base_width=base_width, name=name + '_block1')
-  for i in range(2, blocks + 1):
-    x = block3(
-        x,
-        filters,
-        groups=groups,
-        conv_shortcut=False,
-        base_width=base_width,
-        name=name + '_block' + str(i))
-  return x
-
-
-def ResNeXt50(include_top=True,
-             weights='imagenet',
-             input_tensor=None,
-             input_shape=None,
-             pooling=None,
-             classes=1000,
-             **kwargs):
-  """Instantiates the ResNeXt50 architecture."""
-
-  def stack_fn(x):
-    x = stack3(x, 64, 3, stride1=1, groups=32, base_width=4, name='conv2')
-    x = stack3(x, 128, 4, groups=32, base_width=4, name='conv3')
-    x = stack3(x, 256, 6, groups=32, base_width=4, name='conv4')
-    return stack3(x, 512, 3, groups=32, base_width=4, name='conv5')
-
-  return ResNet(stack_fn, False, False, 'resnext50', include_top, weights,
-                input_tensor, input_shape, pooling, classes, **kwargs)
-
-
-def ResNeXt101(include_top=True,
-             weights='imagenet',
-             input_tensor=None,
-             input_shape=None,
-             pooling=None,
-             classes=1000,
-             **kwargs):
-  """Instantiates the ResNeXt101 architecture."""
-
-  def stack_fn(x):
-    x = stack3(x, 64, 3, stride1=1, groups=32, base_width=8, name='conv2')
-    x = stack3(x, 128, 4, groups=32, base_width=8, name='conv3')
-    x = stack3(x, 256, 23, groups=32, base_width=8, name='conv4')
-    return stack3(x, 512, 3, groups=32, base_width=8, name='conv5')
-  return ResNet(stack_fn, False, False, 'resnext101', include_top, weights,
-                input_tensor, input_shape, pooling, classes, **kwargs)
-
-
-def WideResNet50(include_top=True,
-             weights='imagenet',
-             input_tensor=None,
-             input_shape=None,
-             pooling=None,
-             classes=1000,
-             **kwargs):
-  """Instantiates the Wide-ResNet50-2 architecture."""
-
-  def stack_fn(x):
-    x = stack3(x, 64, 3, stride1=1, base_width=128, name='conv2')
-    x = stack3(x, 128, 4, base_width=128, name='conv3')
-    x = stack3(x, 256, 6, base_width=128, name='conv4')
-    return stack3(x, 512, 3, base_width=128, name='conv5')
-  return ResNet(stack_fn, False, False, 'wide_resnet50', include_top, weights,
-                input_tensor, input_shape, pooling, classes, **kwargs)
-  
-
-def WideResNet101(include_top=True,
-             weights='imagenet',
-             input_tensor=None,
-             input_shape=None,
-             pooling=None,
-             classes=1000,
-             **kwargs):
-  """Instantiates the Wide-ResNet101-2 architecture."""
-
-  def stack_fn(x):
-    x = stack3(x, 64, 3, stride1=1, base_width=128, name='conv2')
-    x = stack3(x, 128, 4, base_width=128, name='conv3')
-    x = stack3(x, 256, 23, base_width=128, name='conv4')
-    return stack3(x, 512, 3, base_width=128, name='conv5')
-  return ResNet(stack_fn, False, False, 'wide_resnet101', include_top, weights,
-                input_tensor, input_shape, pooling, classes, **kwargs)
-
-
 def preprocess_input(x, data_format=None):
   return imagenet_utils.preprocess_input(
       x, data_format=data_format, mode='torch')
+
+preprocess_input.__doc__ = imagenet_utils.PREPROCESS_INPUT_DOC.format(
+    mode='',
+    ret=imagenet_utils.PREPROCESS_INPUT_RET_DOC_TORCH)
