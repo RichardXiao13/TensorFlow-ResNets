@@ -22,13 +22,13 @@ These models **will not work without a GPU or TPU** due to the use of grouped co
 To install, you can use `pip install tf2-resnets`.  
 To use a model, you can do
 ```python
-from tf2_resnets import resnet
+from tf2_resnets import models
 
 # Weights here are ImageNet.
 # They can also be 'ssl' (semi-supervised)
 # or 'swsl' (semi-weakly supervised)
 # for a selection of models.
-model = resnet.ResNeXt50(input_shape=(224, 224, 3), weights='imagenet')
+model = models.ResNeXt50(input_shape=(224, 224, 3), weights='imagenet')
 ```
 
 ## Models
@@ -41,10 +41,17 @@ model = resnet.ResNeXt50(input_shape=(224, 224, 3), weights='imagenet')
 | ResNeXt-101 32x8d | ImageNet               | 79.3       | 94.5       |
 | Wide ResNet-50 2  | ImageNet               | 78.5       | 94.1       |
 | Wide ResNet-101 2 | ImageNet               | 78.8       | 94.3       |
+| ResNeSt-50        | ImageNet               | 81.0*      | N/A        |
+| ResNeSt-101       | ImageNet               | 82.8*      | N/A        |
+| ResNeSt-200       | ImageNet               | 83.8*      | N/A        |
+| ResNeSt-269       | ImageNet               | 84.5*      | N/A        |
 | ResNeXt-50 32x4d  | semi-supervised        | 80.3       | 95.4       |
 | ResNeXt-101 32x8d | semi-supervised        | 81.7       | 96.1       |
 | ResNeXt-50 32x4d  | semi-weakly supervised | 82.2       | 96.3       |
 | ResNeXt-101 32x8d | semi-weakly supervised | 84.3       | 97.2       |
+
+\* ResNeSt models' Top-1 Accuracies were reported using different crop sizes.
+Crop sizes in order - **224, 256, 320, and 416**.
 
 ## Preprocessing
 
@@ -55,3 +62,12 @@ according to the task at hand. The first one, located in `imagenet_preprocessing
 is meant to be used for reproducing the ImageNet results. The second function
 is located inside `resnet.py`. This function is meant to be used for transfer learning.
 The first function includes an additional resize to 256 by 256 and a central crop to 224 by 224.
+
+## Original Implementations
+
+---
+
+The original implementions of these models are listed below.  
+* [ResNeSt](https://github.com/zhanghang1989/ResNeSt) (PyTorch)
+* [ResNeXt](https://github.com/facebookresearch/semi-supervised-ImageNet1K-models) (PyTorch)
+* [Wide ResNet](https://github.com/pytorch/vision) (PyTorch)
