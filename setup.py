@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='tf2-resnets',
-    version='0.2.0',
+    version='0.3.0',
     author='Richard Xiao',
     author_email='richard.xiao13@gmail.com',
     description='ResNet variations for TensorFlow.',

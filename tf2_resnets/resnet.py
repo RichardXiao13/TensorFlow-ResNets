@@ -20,6 +20,16 @@ BASE_WEIGHTS_PATH = (
     'https://github.com/RichardXiao13/Tensorflow-ResNet/releases/download/'
 )
 IMAGENET_WEIGHTS_HASHES = {
+    'resnet18': ('fc360454f970b51877a2fbd1e82c7170',
+                 'e672db36e2d1bda2fda85d60a8fc373f'),
+    'resnet34': ('9912ebb52d48754456c6e68e5ee1335e',
+                 'b57d90bde7e81ffca1098ed94362fdb9'),
+    'resnet50': ('e2bc867bcac0e8f8b3028fda627fe805',
+                 '7ff6bf4561069d0af0fc49e5973f5103'),
+    'resnet101': ('f92b68f7ab41a11b7962f840b013aee8',
+                  'dbcdb23025bbd746e4ff597d55850753'),
+    'resnet152': ('0058a38f6f9310ee03331d4b4e1c3f05',
+                  '0fd9ffe6b4c10f81ae4d29f9f9b5ac3d'),
     'resnext50': ('ae0d1246ce78fc84e96b68815980d252',
                   '640d25b086d52a95d1516669eac5cc99'),
     'resnext101': ('5c0275334d267f617c1fa4c87c49f36f',
@@ -38,12 +48,20 @@ IMAGENET_WEIGHTS_HASHES = {
                    'c29b0d7e5cc68ebe37cbdfba17f3359b')
 }
 SSL_WEIGHTS_HASHES = {
+    'resnet18': ('06679d70ed11edcb47515896784c9fb5',
+                 '7a01769c8dc4611d55ed710e73487c63'),
+    'resnet50': ('82c5d81484d68063ee318f08cca678d9',
+                 '6fd227f43490d3117e27d89f24811497'),
     'resnext50': ('b216ae004757827896210dcc5b823298',
                   '71f76fb29ed62cb19a8c3788fcde72a7'),
     'resnext101': ('dbb2de52a36abea91a470a98c35c0874',
                    '040d7708388f60ffc63194d91501dcde')
 }
 SWSL_WEIGHTS_HASHES = {
+    'resnet18': ('35c609595184013049fb45bad0047f38',
+                 'fa0ac84df42e7cbfe78b7a5e0a3c6853'),
+    'resnet50': ('6a91f822fe6aa7d3d850b9a79ed13d56',
+                 '459d58e13955c78309443b896ed3bfed'),
     'resnext50': ('8f3231cea92036f748eb5391c2c1266c',
                   'abf020c713a5d5b2555a5169faf02146'),
     'resnext101': ('3255ad088217aede56d1b1f41f90eb3b',
@@ -219,6 +237,8 @@ def ResNet(stack_fn,
   global BASE_WEIGHTS_PATH
   if 'resnest' in model_name:
     BASE_WEIGHTS_PATH += 'v0.2.0/'
+  elif 'resnet' in model_name and 'wide' not in model_name:
+    BASE_WEIGHTS_PATH += 'v0.3.0/'
   else:
     BASE_WEIGHTS_PATH += 'v0.1.0/'
 

@@ -1,5 +1,5 @@
 from tf2_resnets.resnet import ResNet
-from tf2_resnets.blocks import stack1, stack2
+from tf2_resnets.blocks import stack1, stack2, stack3
 
 
 def ResNeXt50(include_top=True,
@@ -153,6 +153,102 @@ def ResNeSt269(include_top=True,
   return ResNet(stack_fn, False, 'resnest269', include_top, weights,
                 input_tensor, input_shape, pooling, True, 64, classes, **kwargs)
 
+
+def ResNet18(include_top=True,
+            weights='imagenet',
+            input_tensor=None,
+            input_shape=None,
+            pooling=None,
+            classes=1000,
+            **kwargs):
+  """Instantiates the ResNet18 architecture."""
+
+  def stack_fn(x):
+    x = stack3(x, 64, 2, stride1=1, conv_shortcut=False, name='conv2')
+    x = stack3(x, 128, 2, name='conv3')
+    x = stack3(x, 256, 2, name='conv4')
+    return stack3(x, 512, 2, name='conv5')
+
+  return ResNet(stack_fn, False, 'resnet18', include_top, weights,
+                input_tensor, input_shape, pooling, False, None, classes, **kwargs)
+
+
+def ResNet34(include_top=True,
+            weights='imagenet',
+            input_tensor=None,
+            input_shape=None,
+            pooling=None,
+            classes=1000,
+            **kwargs):
+  """Instantiates the ResNet34 architecture."""
+
+  def stack_fn(x):
+    x = stack3(x, 64, 3, stride1=1, conv_shortcut=False, name='conv2')
+    x = stack3(x, 128, 4, name='conv3')
+    x = stack3(x, 256, 6, name='conv4')
+    return stack3(x, 512, 3, name='conv5')
+
+  return ResNet(stack_fn, False, 'resnet34', include_top, weights,
+                input_tensor, input_shape, pooling, False, None, classes, **kwargs)
+
+
+def ResNet50(include_top=True,
+            weights='imagenet',
+            input_tensor=None,
+            input_shape=None,
+            pooling=None,
+            classes=1000,
+            **kwargs):
+  """Instantiates the ResNet50 architecture."""
+
+  def stack_fn(x):
+    x = stack1(x, 64, 3, stride1=1, name='conv2')
+    x = stack1(x, 128, 4, name='conv3')
+    x = stack1(x, 256, 6, name='conv4')
+    return stack1(x, 512, 3, name='conv5')
+
+  return ResNet(stack_fn, False, 'resnet50', include_top, weights,
+                input_tensor, input_shape, pooling, False, None, classes, **kwargs)
+
+
+def ResNet101(include_top=True,
+            weights='imagenet',
+            input_tensor=None,
+            input_shape=None,
+            pooling=None,
+            classes=1000,
+            **kwargs):
+  """Instantiates the ResNet101 architecture."""
+
+  def stack_fn(x):
+    x = stack1(x, 64, 3, stride1=1, name='conv2')
+    x = stack1(x, 128, 4, name='conv3')
+    x = stack1(x, 256, 23, name='conv4')
+    return stack1(x, 512, 3, name='conv5')
+
+  return ResNet(stack_fn, False, 'resnet50', include_top, weights,
+                input_tensor, input_shape, pooling, False, None, classes, **kwargs)
+
+
+def ResNet152(include_top=True,
+            weights='imagenet',
+            input_tensor=None,
+            input_shape=None,
+            pooling=None,
+            classes=1000,
+            **kwargs):
+  """Instantiates the ResNet152 architecture."""
+
+  def stack_fn(x):
+    x = stack1(x, 64, 3, stride1=1, name='conv2')
+    x = stack1(x, 128, 8, name='conv3')
+    x = stack1(x, 256, 36, name='conv4')
+    return stack1(x, 512, 3, name='conv5')
+
+  return ResNet(stack_fn, False, 'resnet50', include_top, weights,
+                input_tensor, input_shape, pooling, False, None, classes, **kwargs)
+
+
 DOC = """
 
 
@@ -212,6 +308,12 @@ RSNSTREF = """
           https://arxiv.org/abs/2004.08955) (CVPR 2020)
 """
 
+RSNTREF = """
+    Reference:
+      - [Deep Residual Learning for Image Recognition](
+          https://arxiv.org/abs/1512.03385) (CVPR 2015)
+"""
+
 setattr(WideResNet50, '__doc__', WideResNet50.__doc__ + WRSNTREF + DOC)
 setattr(WideResNet101, '__doc__', WideResNet101.__doc__ + WRSNTREF + DOC)
 setattr(ResNeXt50, '__doc__', ResNeXt50.__doc__ + RSNXTREF + DOC)
@@ -220,3 +322,8 @@ setattr(ResNeSt50, '__doc__', ResNeXt50.__doc__ + RSNSTREF + DOC)
 setattr(ResNeSt101, '__doc__', ResNeXt50.__doc__ + RSNSTREF + DOC)
 setattr(ResNeSt200, '__doc__', ResNeXt50.__doc__ + RSNSTREF + DOC)
 setattr(ResNeSt269, '__doc__', ResNeXt50.__doc__ + RSNSTREF + DOC)
+setattr(ResNet18, '__doc__', ResNet18.__doc__ + RSNTREF + DOC)
+setattr(ResNet34, '__doc__', ResNet34.__doc__ + RSNTREF + DOC)
+setattr(ResNet50, '__doc__', ResNet50.__doc__ + RSNTREF + DOC)
+setattr(ResNet101, '__doc__', ResNet101.__doc__ + RSNTREF + DOC)
+setattr(ResNet152, '__doc__', ResNet152.__doc__ + RSNTREF + DOC)
