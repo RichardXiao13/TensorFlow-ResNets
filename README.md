@@ -52,10 +52,10 @@ model = models.ResNeXt50(input_shape=(224, 224, 3), weights='imagenet')
 | ResNeSt-269       | ImageNet               | 84.5*      | N/A        |
 | ResNet-18         | semi-supervised        | 72.8       | 91.5       |
 | ResNet-50         | semi-supervised        | 79.3       | 94.9       |
-| ResNet-18         | semi-weakly supervised | 73.4       | 91.9       |
-| ResNet-50         | semi-weakly supervised | 81.2       | 96.0       |
 | ResNeXt-50 32x4d  | semi-supervised        | 80.3       | 95.4       |
 | ResNeXt-101 32x8d | semi-supervised        | 81.7       | 96.1       |
+| ResNet-18         | semi-weakly supervised | 73.4       | 91.9       |
+| ResNet-50         | semi-weakly supervised | 81.2       | 96.0       |
 | ResNeXt-50 32x4d  | semi-weakly supervised | 82.2       | 96.3       |
 | ResNeXt-101 32x8d | semi-weakly supervised | 84.3       | 97.2       |
 
