@@ -37,6 +37,11 @@ model = models.ResNeXt50(input_shape=(224, 224, 3), weights='imagenet')
 
 | Architecture      | Weights                | Top-1 Acc. | Top-5 Acc. |  
 | ----------------- | :--------------------: | :--------: | :--------: |
+| ResNet-18         | ImageNet               | 69.8       | 89.1       |
+| ResNet-34         | ImageNet               | 73.3       | 91.4       |
+| ResNet-50         | ImageNet               | 76.2       | 92.9       |
+| ResNet-101        | ImageNet               | 77.4       | 93.6       |
+| ResNet-152        | ImageNet               | 78.3       | 94.1       |
 | ResNeXt-50 32x4d  | ImageNet               | 77.6       | 93.7       |
 | ResNeXt-101 32x8d | ImageNet               | 79.3       | 94.5       |
 | Wide ResNet-50 2  | ImageNet               | 78.5       | 94.1       |
@@ -45,6 +50,10 @@ model = models.ResNeXt50(input_shape=(224, 224, 3), weights='imagenet')
 | ResNeSt-101       | ImageNet               | 82.8*      | N/A        |
 | ResNeSt-200       | ImageNet               | 83.8*      | N/A        |
 | ResNeSt-269       | ImageNet               | 84.5*      | N/A        |
+| ResNet-18         | semi-supervised        | 72.8       | 91.5       |
+| ResNet-50         | semi-supervised        | 79.3       | 94.9       |
+| ResNet-18         | semi-weakly supervised | 73.4       | 91.9       |
+| ResNet-50         | semi-weakly supervised | 81.2       | 96.0       |
 | ResNeXt-50 32x4d  | semi-supervised        | 80.3       | 95.4       |
 | ResNeXt-101 32x8d | semi-supervised        | 81.7       | 96.1       |
 | ResNeXt-50 32x4d  | semi-weakly supervised | 82.2       | 96.3       |
@@ -68,6 +77,7 @@ The first function includes an additional resize to 256 by 256 and a central cro
 ---
 
 The original implementions of these models are listed below.  
+* [ResNet](https://github.com/facebookresearch/semi-supervised-ImageNet1K-models) (PyTorch)
 * [ResNeSt](https://github.com/zhanghang1989/ResNeSt) (PyTorch)
 * [ResNeXt](https://github.com/facebookresearch/semi-supervised-ImageNet1K-models) (PyTorch)
 * [Wide ResNet](https://github.com/pytorch/vision) (PyTorch)
