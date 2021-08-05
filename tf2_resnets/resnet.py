@@ -293,6 +293,3 @@ def preprocess_input(x, data_format=None):
   return imagenet_utils.preprocess_input(
       x, data_format=data_format, mode='torch')
 
-preprocess_input.__doc__ = imagenet_utils.PREPROCESS_INPUT_DOC.format(
-    mode='',
-    ret=imagenet_utils.PREPROCESS_INPUT_RET_DOC_TORCH)
